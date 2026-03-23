@@ -30,3 +30,14 @@ The full system documentation can be found in the following files:
 ## Repository Purpose
 
 This repository contains the system specification and architectural design for the University Research Collaboration Platform as part of a Software Engineering assignment focused on system modeling and architecture design.
+
+## Additional Documentation
+
+- Stakeholder Analysis:  
+  [STAKEHOLDER_ANALYSIS.md](STAKEHOLDER_ANALYSIS.md)
+
+- System Requirements:  
+  [SYSTEM_REQUIREMENTS.md](SYSTEM_REQUIREMENTS.md)
+
+- Reflection:  
+  [REFLECTION.md](REFLECTION.md)
