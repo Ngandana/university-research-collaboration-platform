@@ -1,8 +1,18 @@
 # Agile User Stories
 
-## Introduction
+## GitHub Agile Implementation
 
-This document translates system requirements and use cases into Agile user stories for the University Research Collaboration Platform. These stories follow the INVEST principles and ensure traceability to previous assignments.
+User stories were implemented using GitHub Issues, where each story includes a title, description, acceptance criteria, and traceability to requirements and use cases.
+
+A GitHub Project Board was used to manage workflow across three stages:
+
+* To Do
+* In Progress
+* Done
+
+A milestone titled "Sprint 1 – MVP Development" was created to represent the first sprint and group selected user stories for the Minimum Viable Product (MVP).
+
+Each issue also includes task checklists to simulate sprint task breakdown, demonstrating real-world Agile practices.
 
 ---
 
