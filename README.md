@@ -17,6 +17,20 @@ The system aims to improve research productivity, enhance supervision processes,
 * Notifications and messaging
 * Secure user authentication and role management
 
+## Kanban Board Implementation
+
+A GitHub Project board was created using the Automated Kanban template to manage Agile workflows.
+
+The board was customized by adding additional columns:
+
+* Testing: To validate completed tasks
+* Blocked: To identify tasks that cannot proceed
+
+User stories from Assignment 6 were linked to the board as GitHub Issues, with labels and assignments applied to ensure traceability and organization.
+
+This implementation demonstrates practical use of Agile project management using GitHub tools.
+
+
 ## Project Documentation
 
 The full system documentation can be found in the following files:
