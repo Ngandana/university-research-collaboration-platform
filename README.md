@@ -55,3 +55,13 @@ This repository contains the system specification and architectural design for t
 
 - Reflection:  
   [REFLECTION.md](REFLECTION.md)
+
+
+## Assignment 8: System Modeling
+
+* [STATE_DIAGRAMS.md](STATE_DIAGRAMS.md)
+* [ACTIVITY_DIAGRAMS.md](ACTIVITY_DIAGRAMS.md)
+* [TRACEABILITY_A8.md](TRACEABILITY_A8.md)
+* [REFLECTION_A8.md](REFLECTION_A8.md)
+
+This section includes object state modeling and activity workflow modeling aligned with system requirements, use cases, and Agile planning.
