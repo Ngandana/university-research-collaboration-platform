@@ -65,3 +65,11 @@ This repository contains the system specification and architectural design for t
 * [REFLECTION_A8.md](REFLECTION_A8.md)
 
 This section includes object state modeling and activity workflow modeling aligned with system requirements, use cases, and Agile planning.
+
+## Assignment 9: Domain Modeling and Class Design
+
+* [DOMAIN_MODEL.md](DOMAIN_MODEL.md)
+* [CLASS_DIAGRAM.md](CLASS_DIAGRAM.md)
+* [REFLECTION_A9.md](REFLECTION_A9.md)
+
+This section includes domain modeling and class diagram development aligned with system requirements, workflows, and Agile planning.
