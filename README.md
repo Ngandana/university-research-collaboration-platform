@@ -173,3 +173,94 @@ The following issues should be created and linked to commits for full marks:
 git commit -m "Fix #17: Thread-safe Singleton implementation with double-checked locking"
 git commit -m "Close #18: Add 54 unit tests for all creational patterns"
 ```
+
+
+
+# Assignment 11 – README Addition
+
+> **Add this section to your existing README.md** beneath the Assignment 10 entry.
+
+---
+
+## Assignment 11: Persistence Repository Layer
+
+### Design Rationale
+
+**Why a generic `Repository[T, ID]` interface?**
+A single generic base interface means all CRUD method signatures are defined once. Entity-specific interfaces (e.g. `UserRepository`) simply extend it and add domain queries (`find_by_email`, `find_overdue`, etc.). Without generics, every repository would re-declare identical `save`, `find_by_id`, `find_all`, `delete`, `exists`, and `count` signatures — pure duplication.
+
+**Why Factory Pattern (not pure DI)?**
+The `RepositoryFactory` was chosen over a Dependency Injection container because the system needs to support runtime switching between backends (tests use `MEMORY`; production would use `DATABASE`). A factory centralises that decision in one file. Adding a new backend (e.g. `REDIS`) requires only one new case in the factory and one new implementation file — all existing service code is unchanged.
+
+**Why in-memory HashMap first?**
+In-memory repositories are fast, have no external dependencies, and make unit tests reliable and repeatable. They prove the interface contract works before any database is involved. The `RepositoryFactory` means switching to a real database later requires changing one line at the call site: `"MEMORY"` → `"DATABASE"`.
+
+---
+
+### Repository Structure (Assignment 11 additions)
+
+```
+university-research-collaboration-platform/
+│
+├── repositories/
+│   ├── interfaces.py              # Generic + entity-specific interfaces
+│   ├── stubs.py                   # FileSystem + Database stubs (future)
+│   └── inmemory/
+│       └── implementations.py     # HashMap-based implementations (all 6 entities)
+│
+├── factories/
+│   └── repository_factory.py      # Storage-abstraction factory
+│
+├── tests/
+│   ├── test_repositories.py       # 66 tests for all repos + factory
+│   ...
+│
+└── CHANGELOG.md
+```
+
+---
+
+### Running Repository Tests
+
+```bash
+pytest tests/test_repositories.py -v
+```
+
+Expected output: **66 passed**.
+
+---
+
+### GitHub Issues (Assignment 11)
+
+Create and close these issues, linking each commit:
+
+| Issue | Title | Label |
+|---|---|---|
+| #21 | Design generic Repository interface | `architecture`, `high` |
+| #22 | Implement entity-specific repository interfaces | `architecture`, `high` |
+| #23 | Implement InMemoryUserRepository | `implementation`, `high` |
+| #24 | Implement InMemoryResearchProjectRepository | `implementation`, `high` |
+| #25 | Implement InMemoryDocumentRepository | `implementation`, `medium` |
+| #26 | Implement InMemoryTaskRepository | `implementation`, `medium` |
+| #27 | Implement InMemoryMessageRepository | `implementation`, `medium` |
+| #28 | Implement InMemoryInvitationRepository | `implementation`, `medium` |
+| #29 | Implement RepositoryFactory (storage abstraction) | `pattern`, `high` |
+| #30 | Add FileSystem + Database stubs (future-proofing) | `future`, `low` |
+| #31 | Write unit tests for repository layer (66 tests) | `testing`, `high` |
+| #32 | Update CHANGELOG and README for Assignment 11 | `documentation` |
+
+**Commit message format:**
+```
+git commit -m "Close #23: Implement InMemoryUserRepository with HashMap storage"
+git commit -m "Close #29: Add RepositoryFactory for MEMORY/FILESYSTEM/DATABASE switching"
+```
+
+---
+
+### Future Storage Backends
+
+The stubs in `repositories/stubs.py` document exactly what needs to be implemented to activate each backend:
+
+**FileSystem** — serialize entities to JSON using `json.dump` / `json.load`. Each entity type maps to one JSON file. Requires `to_dict()` / `from_dict()` methods on domain classes.
+
+**Database** — persist to PostgreSQL using `psycopg2` or SQLAlchemy. Connects via the `DatabaseConnection` singleton already implemented in `creational_patterns/singleton.py`. Full table schemas are documented in each stub class.
