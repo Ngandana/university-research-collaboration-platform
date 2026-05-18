@@ -264,3 +264,102 @@ The stubs in `repositories/stubs.py` document exactly what needs to be implement
 **FileSystem** — serialize entities to JSON using `json.dump` / `json.load`. Each entity type maps to one JSON file. Requires `to_dict()` / `from_dict()` methods on domain classes.
 
 **Database** — persist to PostgreSQL using `psycopg2` or SQLAlchemy. Connects via the `DatabaseConnection` singleton already implemented in `creational_patterns/singleton.py`. Full table schemas are documented in each stub class.
+
+
+# Assignment 12 – README Addition
+
+
+---
+
+## Assignment 12: Service Layer and REST API
+
+### Framework Choice
+
+**FastAPI (Python)** was chosen because:
+- It auto-generates interactive Swagger UI from the code — no separate documentation tool needed (satisfies the API documentation requirement out of the box).
+- Pydantic models provide request/response validation with clear error messages.
+- The `TestClient` allows full integration tests without running a live server, keeping CI fast.
+- It integrates cleanly with the existing Python codebase from Assignments 9–11.
+
+### Architecture
+
+```
+HTTP Request
+    ↓
+FastAPI Route (api/main.py)      ← validates HTTP input (Pydantic)
+    ↓
+Service Layer (services/)        ← enforces business rules
+    ↓
+Repository Layer (repositories/) ← persists/retrieves data
+    ↓
+Domain Model (src/)              ← entity state and behaviour
+```
+
+### Repository Structure (Assignment 12 additions)
+
+```
+university-research-collaboration-platform/
+│
+├── services/
+│   ├── user_service.py          # UserService + custom exceptions
+│   ├── project_service.py       # ProjectService + custom exceptions
+│   └── task_service.py          # TaskService + custom exceptions
+│
+├── api/
+│   └── main.py                  # FastAPI app — all routes + Pydantic schemas
+│
+├── docs/
+│   ├── openapi.json             # Auto-generated OpenAPI 3.1 schema
+│   └── API_DOCUMENTATION.md    # Full endpoint reference
+│
+├── tests/
+│   ├── services/
+│   │   └── test_services.py     # 50 unit tests for service layer
+│   └── api/
+│       └── test_api.py          # 43 integration tests for REST API
+│
+└── CHANGELOG.md
+```
+
+### Running the API
+
+```bash
+pip install fastapi uvicorn httpx
+uvicorn api.main:app --reload
+```
+
+Visit:
+- **Swagger UI:** http://localhost:8000/docs
+- **OpenAPI JSON:** http://localhost:8000/openapi.json
+- **Health check:** http://localhost:8000/health
+
+### Running All Tests
+
+```bash
+python -m pytest tests/ -v
+```
+
+Expected: **93 passed** (50 service + 43 API integration tests).
+
+---
+
+### GitHub Issues (Assignment 12)
+
+| Issue | Title | Label |
+|---|---|---|
+| #33 | Implement UserService with business logic | `service`, `high` |
+| #34 | Implement ProjectService with business logic | `service`, `high` |
+| #35 | Implement TaskService with business logic | `service`, `high` |
+| #36 | Build FastAPI app with User endpoints | `api`, `high` |
+| #37 | Build FastAPI app with Project endpoints | `api`, `high` |
+| #38 | Build FastAPI app with Task endpoints | `api`, `high` |
+| #39 | Write unit tests for all service classes (50 tests) | `testing`, `high` |
+| #40 | Write integration tests for all API endpoints (43 tests) | `testing`, `high` |
+| #41 | Generate OpenAPI docs and API_DOCUMENTATION.md | `documentation` |
+| #42 | Update CHANGELOG and README for Assignment 12 | `documentation` |
+
+**Commit message format:**
+```
+git commit -m "Close #33: Implement UserService with register, suspend, reactivate"
+git commit -m "Close #36: Add FastAPI User endpoints with Pydantic validation"
+```

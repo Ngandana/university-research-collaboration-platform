@@ -4,6 +4,39 @@ All notable changes to the University Research Collaboration Platform are docume
 
 ---
 
+# CHANGELOG
+
+---
+
+## [Assignment 12] – Service Layer and REST API
+
+### Added – Service Layer (`/services`)
+
+- `user_service.py` — `UserService`: register, get, list, update, suspend, reactivate, deactivate. Enforces unique email, role validation, password length, and active-user checks.
+- `project_service.py` — `ProjectService`: create, get, list, add member, complete, archive, delete. Enforces owner-only actions, role restrictions (supervisor/researcher only), and project state guards.
+- `task_service.py` — `TaskService`: create, get, list, assign, start, complete, delete. Enforces role restrictions, future deadline rule, max 10 active tasks per student, and assignee-only start/complete.
+
+### Added – REST API (`/api/main.py`)
+
+Built with **FastAPI**. All endpoints auto-documented via Swagger UI at `/docs`.
+
+**Users:** `POST`, `GET`, `GET /{id}`, `PUT /{id}`, `POST /{id}/suspend`, `POST /{id}/reactivate`, `DELETE /{id}`  
+**Projects:** `POST`, `GET`, `GET /{id}`, `POST /{id}/members`, `POST /{id}/complete`, `DELETE /{id}`  
+**Tasks:** `POST`, `GET`, `GET /{id}`, `POST /{id}/assign`, `POST /{id}/start`, `POST /{id}/complete`, `DELETE /{id}`  
+**System:** `GET /health`
+
+### Added – Documentation (`/docs`)
+
+- `openapi.json` — auto-generated OpenAPI 3.1 schema (view at `/docs` when server is running).
+- `API_DOCUMENTATION.md` — full endpoint reference with request/response examples, error codes, and business rule table.
+
+### Added – Tests
+
+- `tests/services/test_services.py` — 50 unit tests for all three service classes covering happy paths, all business rule violations, and edge cases.
+- `tests/api/test_api.py` — 43 integration tests for all API endpoints using FastAPI `TestClient`.
+- **Total: 93 tests — all passing.**
+
+---
 ## [Assignment 11] – Persistence Repository Layer
 
 ### Added – Repository Interfaces (`/repositories/interfaces.py`)
