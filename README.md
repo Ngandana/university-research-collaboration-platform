@@ -363,3 +363,101 @@ Expected: **93 passed** (50 service + 43 API integration tests).
 git commit -m "Close #33: Implement UserService with register, suspend, reactivate"
 git commit -m "Close #36: Add FastAPI User endpoints with Pydantic validation"
 ```
+
+## Assignment 13: CI/CD with GitHub Actions
+
+### Running Tests Locally
+
+```bash
+# Activate your virtual environment first
+.venv\Scripts\Activate.ps1       # Windows PowerShell
+source .venv/bin/activate        # Mac/Linux
+
+# Install dependencies
+python -m pip install fastapi uvicorn httpx pytest pytest-cov
+
+# Run all tests
+python -m pytest tests/ -v
+
+# Run with coverage report
+python -m pytest tests/ --cov=src --cov=services --cov=api --cov-report=term-missing
+```
+
+Expected result: **249 passed**
+
+---
+
+### How the CI/CD Pipeline Works
+
+The pipeline is defined in `.github/workflows/ci.yml` and has two jobs:
+
+#### Job 1 — `Run Tests` (CI)
+**Triggers:** Every push to any branch, and every Pull Request targeting `main`.
+
+Steps:
+1. Checks out the repository.
+2. Sets up Python 3.12.
+3. Caches pip dependencies for speed.
+4. Installs all dependencies.
+5. Runs all 249 tests with coverage reporting.
+6. Uploads `test-results.xml` and `coverage.xml` as artifacts.
+
+If any test fails, this job fails — and because it is a required status check,
+the PR merge button is blocked automatically.
+
+#### Job 2 — `Build Release Artifact` (CD)
+**Triggers:** Only when code is pushed/merged to `main` AND Job 1 passes.
+
+Steps:
+1. Builds a Python wheel (`.whl`) package of the entire platform.
+2. Uploads the wheel as a downloadable artifact in GitHub Actions (retained 30 days).
+3. If a Git tag is pushed (e.g. `v1.0.0`), also creates a GitHub Release.
+
+---
+
+### Branch Protection Rules
+
+The `main` branch is protected with the following rules:
+
+- Pull Request required before merging (minimum 1 reviewer approval).
+- `Run Tests` CI job must pass before merge is allowed.
+- Branches must be up to date with `main` before merging.
+- Direct pushes to `main` are blocked for everyone including administrators.
+
+See `PROTECTION.md` for full justification of each rule.
+
+---
+
+### CI/CD File Structure
+
+```
+university-research-collaboration-platform/
+│
+├── .github/
+│   └── workflows/
+│       └── ci.yml          # CI/CD pipeline definition
+│
+├── requirements.txt         # All Python dependencies
+├── PROTECTION.md            # Branch protection justification
+└── README.md                # This file
+```
+
+---
+
+### GitHub Issues (Assignment 13)
+
+| Issue | Title | Label |
+|---|---|---|
+| #43 | Create .github/workflows/ci.yml with test automation | `ci`, `high` |
+| #44 | Add CD job to build Python wheel on main merge | `cd`, `high` |
+| #45 | Configure branch protection rules on main | `devops`, `high` |
+| #46 | Add requirements.txt for CI dependency installation | `devops` |
+| #47 | Write PROTECTION.md justifying branch protection rules | `documentation` |
+| #48 | Update README with CI/CD and local test instructions | `documentation` |
+
+**Commit format:**
+```
+git commit -m "Close #43: Add GitHub Actions CI workflow with 249 test run"
+git commit -m "Close #44: Add CD job to build and upload Python wheel artifact"
+```
+
