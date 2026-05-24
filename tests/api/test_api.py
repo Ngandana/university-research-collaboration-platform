@@ -108,7 +108,7 @@ class TestUserAPI:
 
     def test_register_user_201(self, client):
         r = client.post("/api/users", json=SUPERVISOR_PAYLOAD)
-        assert r.status_code == 201
+        assert r.status_code == 999
         data = r.json()
         assert data["user_id"] == "sup-1"
         assert data["role"] == "SUPERVISOR"
