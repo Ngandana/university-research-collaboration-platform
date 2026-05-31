@@ -461,3 +461,92 @@ git commit -m "Close #43: Add GitHub Actions CI workflow with 249 test run"
 git commit -m "Close #44: Add CD job to build and upload Python wheel artifact"
 ```
 
+# Assignment 14 – README Addition
+
+> **Add this section to your existing README.md** beneath the Assignment 13 entry.
+> Also add the badges and Getting Started section near the TOP of your README, just below the project title.
+
+---
+
+## Badges (paste near the top of README, below the title)
+
+![CI/CD](https://github.com/Ngandana/university-research-collaboration-platform/actions/workflows/ci.yml/badge.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Python](https://img.shields.io/badge/python-3.12-blue.svg)
+![Tests](https://img.shields.io/badge/tests-249%20passing-brightgreen)
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Python 3.12+
+- Git
+
+### Installation
+
+```bash
+# 1. Fork this repo, then clone your fork
+git clone https://github.com/YOUR-USERNAME/university-research-collaboration-platform.git
+cd university-research-collaboration-platform
+
+# 2. Create and activate virtual environment
+python -m venv .venv
+.venv\Scripts\Activate.ps1        # Windows
+source .venv/bin/activate          # Mac/Linux
+
+# 3. Install dependencies
+pip install fastapi uvicorn httpx pytest pytest-cov
+
+# 4. Run the tests
+python -m pytest tests/ -v
+
+# 5. Start the API
+uvicorn api.main:app --reload
+```
+
+Visit `http://localhost:8000/docs` for the interactive API documentation.
+
+---
+
+## Features Available for Contribution
+
+| Feature | Difficulty | Issue Label |
+|---|---|---|
+| Add login endpoint (`POST /api/auth/login`) | Easy | `good-first-issue` |
+| Add pagination to list endpoints | Easy | `good-first-issue` |
+| Add Dockerfile for one-command setup | Easy | `good-first-issue` |
+| Add document upload endpoint | Medium | `feature-request` |
+| Add message and notification endpoints | Medium | `feature-request` |
+| Integrate PostgreSQL database | Medium | `feature-request` |
+| Add Redis caching layer | Hard | `feature-request` |
+
+See [ROADMAP.md](ROADMAP.md) for the full list of planned features.
+
+---
+
+## Assignment 14: Open-Source Preparation
+
+### Files Added
+
+| File | Purpose |
+|---|---|
+| `CONTRIBUTING.md` | Setup instructions, coding standards, PR process |
+| `ROADMAP.md` | Planned features grouped by development phase |
+| `LICENSE` | MIT License |
+| `VOTING_RESULTS.md` | Peer engagement tracking (stars, forks, feedback) |
+| `REFLECTION.md` | 500+ word reflection on open-source collaboration |
+
+### GitHub Issues Labelled for Contributors
+
+Go to the [Issues tab](../../issues) and filter by:
+- `good-first-issue` — simple, self-contained tasks for new contributors
+- `feature-request` — larger enhancements listed in the roadmap
+
+### Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a Pull Request.
+
+### License
+
+This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
