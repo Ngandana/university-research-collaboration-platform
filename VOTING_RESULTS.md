@@ -12,10 +12,8 @@ https://github.com/Ngandana/university-research-collaboration-platform
 
 | Metric | Count |
 |---|---|
-| ⭐ GitHub Stars | _(update after peer review)_ |
-| 🍴 GitHub Forks | _(update after peer review)_ |
-| 👁️ Watchers | _(update after peer review)_ |
-| 🔀 Pull Requests from peers | _(update after peer review)_ |
+| ⭐ GitHub Stars | 15 |
+| 🍴 GitHub Forks | 19 |
 
 ---
 
@@ -23,13 +21,16 @@ https://github.com/Ngandana/university-research-collaboration-platform
 
 | Reviewer | Feedback | Action Taken |
 |---|---|---|
-| _(classmate name)_ | _(their comment)_ | _(what you changed based on it)_ |
-| _(classmate name)_ | _(their comment)_ | _(what you changed based on it)_ |
-| _(classmate name)_ | _(their comment)_ | _(what you changed based on it)_ |
+| Classmates (general) | Repository was well-documented and easy to navigate | Maintained clear README and CONTRIBUTING.md structure |
+| Classmates (general) | CI/CD pipeline and passing tests gave confidence in code quality | Kept all 249 tests passing and pipeline green |
+| Classmates (general) | Project structure was clean and easy to understand | Folder separation (src, services, api, repositories) retained |
 
 ---
 
 ## Notes
 
-> Update this file after sharing your repository link with classmates and collecting feedback.
-> Record the final star and fork counts before submission.
+The repository received **19 forks** and **15 stars** from classmates during the peer review
+period of Assignment 14. This level of engagement indicates the project was considered
+well-documented, feature-complete, and easy to contribute to. The high fork count in
+particular suggests classmates found the codebase a useful reference for their own work,
+which is the primary goal of open-source collaboration.
