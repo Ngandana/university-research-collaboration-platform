@@ -294,16 +294,21 @@ def register_user(request: UserCreateRequest):
     tags=["Users"],
     summary="Get all users",
 )
-def get_all_users(role: Optional[str] = Query(None, description="Filter by role")):
+def get_all_users(
+    role: Optional[str] = Query(None, description="Filter by role"),
+    skip: int = Query(0, ge=0, description="Number of records to skip"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of records to return"),
+):
     """
     Return all users. Optionally filter by role using the `?role=` query parameter.
+    Use `skip` and `limit` for pagination.
     """
     try:
         if role:
             users = user_service.get_users_by_role(role)
         else:
             users = user_service.get_all_users()
-        return [_user_to_response(u) for u in users]
+        return [_user_to_response(u) for u in users][skip: skip + limit]
     except InvalidRoleError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
@@ -439,15 +444,18 @@ def create_project(request: ProjectCreateRequest):
 def get_all_projects(
     owner_id: Optional[str] = Query(None, description="Filter by owner user ID"),
     member_id: Optional[str] = Query(None, description="Filter by member user ID"),
+    skip: int = Query(0, ge=0, description="Number of records to skip"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of records to return"),
 ):
-    """Return all projects. Filter by owner or member using query parameters."""
+    """Return all projects. Filter by owner or member using query parameters.
+    Use `skip` and `limit` for pagination."""
     if owner_id:
         projects = project_service.get_projects_by_owner(owner_id)
     elif member_id:
         projects = project_service.get_projects_by_member(member_id)
     else:
         projects = project_service.get_all_projects()
-    return [_project_to_response(p) for p in projects]
+    return [_project_to_response(p) for p in projects][skip: skip + limit]
 
 
 @app.get(
@@ -584,8 +592,11 @@ def get_all_tasks(
     project_id: Optional[str] = Query(None, description="Filter by project ID"),
     assignee_id: Optional[str] = Query(None, description="Filter by assignee user ID"),
     overdue: Optional[bool] = Query(None, description="Return only overdue tasks"),
+    skip: int = Query(0, ge=0, description="Number of records to skip"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of records to return"),
 ):
-    """Return all tasks with optional filters."""
+    """Return all tasks with optional filters.
+    Use `skip` and `limit` for pagination."""
     if project_id:
         tasks = task_service.get_tasks_by_project(project_id)
     elif assignee_id:
@@ -594,7 +605,7 @@ def get_all_tasks(
         tasks = task_service.get_overdue_tasks()
     else:
         tasks = task_service.get_all_tasks()
-    return [_task_to_response(t) for t in tasks]
+    return [_task_to_response(t) for t in tasks][skip: skip + limit]
 
 
 @app.get(
