@@ -178,3 +178,102 @@ Finally, this assignment illustrated the relationship between automated testing 
 
 These lessons extend beyond academic projects. The practices established here — branch protection, automated testing, clear documentation, labelled issues, and a public roadmap — are the same practices that make successful open-source projects like FastAPI, pytest, and Django welcoming to contributors at all experience levels.
 
+
+# Reflection — Assignment 15: Cross-Project Contributions
+
+## Introduction
+
+This reflection covers my experience contributing to three classmates' repositories
+during Assignment 15. The three projects were the Hospital Patient Monitoring System
+(Java/Spring Boot), the Movie Recommendation System (Python/FastAPI), and the Finance
+Management System (Java/Spring Boot). Each contribution presented different challenges
+and taught distinct lessons about open-source collaboration.
+
+---
+
+## How I Approached Contributing to Peers' Projects
+
+Before writing a single line of code for any peer repository, I read each project's
+CONTRIBUTING.md and README thoroughly. I also commented on each issue before starting
+work, writing "I'd love to work on this issue for Assignment 15 — please assign it to
+me." This mirrors real open-source practice and prevents two contributors from doing
+the same work simultaneously.
+
+For the Hospital Patient Monitoring System, I tackled Issue #32 — implementing JWT
+authentication. This was the most complex of the three contributions. I created three
+new security classes (JwtUtil, JwtAuthenticationFilter, and SecurityConfig), updated
+the UserService constructor to inject JwtUtil, and added a new AuthController exposing
+the /api/auth/login endpoint. The contribution required understanding the project's
+existing Spring Boot architecture before touching any code, and involved resolving a
+dependency conflict where the jjwt-jackson library introduced an incompatible version
+of the Jackson JSON parser. Switching to jjwt-gson resolved this. I also updated the
+existing UserServiceTest to pass JwtUtil as a constructor argument, and added
+@AutoConfigureMockMvc(addFilters = false) to the integration test so it would continue
+passing without needing to authenticate. The final build passed all 28 tests.
+
+For the Movie Recommendation System, I tackled Issue #18 — adding a watchlist feature.
+This was more straightforward architecturally since the project used Python and FastAPI,
+the same stack as my own project. I updated the User domain class, created a new
+UserService, added three REST endpoints, and wrote two unit tests. While running the
+tests, I also discovered and fixed a pre-existing failing test in the movie service
+where the test called result.id instead of result.movie_id — adding bonus value to
+the PR. The final build passed all 34 tests.
+
+For the Finance Management System, I tackled Issue #13 — migrating from the in-memory
+H2 database to PostgreSQL. This involved replacing the H2 Maven dependency with the
+PostgreSQL driver and creating an application.properties file with the correct
+connection URL, Hibernate dialect, and ddl-auto settings. I also verified that the
+User entity used @Table(name = "users") to prevent a PostgreSQL reserved keyword
+crash — a subtle but critical detail.
+
+---
+
+## Challenges in Contributing to Unfamiliar Codebases
+
+The most significant challenge was environment setup. The Hospital Patient Monitoring
+System required Java 17, Maven, and correct JAVA_HOME configuration — none of which
+were set up on my machine at the start. Resolving the JAVA_HOME environment variable
+issue took multiple attempts across terminal sessions before Maven could find the JDK.
+This kind of environment friction is something any real open-source contributor
+encounters and must learn to work through methodically.
+
+A second challenge was dependency conflicts. Adding jjwt-jackson to a Spring Boot
+project that was built without the standard Spring Boot parent tag caused a Jackson
+version incompatibility that crashed the application context. This required
+understanding not just what to add, but how Maven dependency resolution works when
+there is no parent BOM managing versions. Switching to jjwt-gson bypassed the conflict
+entirely.
+
+A third challenge was working across two different languages and frameworks in a single
+assignment. The Java contributions required understanding Spring Boot dependency
+injection, security filter chains, and Maven. The Python contribution required
+understanding FastAPI routing, repository patterns, and pytest. Switching mental context
+between the two ecosystems within the same assignment required careful attention to the
+conventions of each project.
+
+---
+
+## Lessons Learned About Open-Source Collaboration
+
+The most important lesson from this assignment is that the quality of a contribution
+is not measured only by the code itself, but by how well it fits the existing project.
+In the Hospital Patient Monitoring System, the correct approach was not to use the
+newest JWT library syntax but to match the patterns already established in the codebase.
+In the Movie Recommendation System, fixing the pre-existing failing test alongside the
+new feature demonstrated that a good contributor improves the project holistically, not
+just in the scope of their assigned issue.
+
+A second lesson was about the importance of CI pipelines as trust signals. For both
+the Java and Python projects, the first thing I did after making changes was run the
+full test suite. Submitting a PR with a failing build is one of the fastest ways to
+have a contribution rejected. The discipline of running all tests before pushing — even
+when confident the changes are correct — is non-negotiable in professional open-source
+work.
+
+Finally, this assignment reinforced the value of clear, descriptive commit messages
+and PR descriptions. Writing "Feat: Implement JWT authentication and Spring Security
+(Closes #32)" communicates intent, links to the issue, and signals semantic versioning
+awareness — all in one line. A maintainer reviewing this PR has immediate context
+without needing to read the diff first. This reduces review friction and increases
+the likelihood of a fast merge, which is the ultimate goal of any open-source
+contribution.
