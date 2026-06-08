@@ -20,11 +20,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from datetime import date
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException, status, Query
+from fastapi import FastAPI, HTTPException, status, Query, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr, field_validator
+import uuid
 
 from factories.repository_factory import RepositoryFactory, STORAGE_MEMORY
+from src.document import Document, DocumentStatus, ALLOWED_FILE_TYPES, MAX_FILE_SIZE_MB
 from services.user_service import (
     UserService, UserNotFoundError, DuplicateEmailError,
     InvalidRoleError, UserNotActiveError,
@@ -56,6 +58,7 @@ app = FastAPI(
 _user_repo = RepositoryFactory.get_user_repository(STORAGE_MEMORY)
 _project_repo = RepositoryFactory.get_project_repository(STORAGE_MEMORY)
 _task_repo = RepositoryFactory.get_task_repository(STORAGE_MEMORY)
+_document_repo = RepositoryFactory.get_document_repository(STORAGE_MEMORY)
 
 user_service = UserService(_user_repo)
 project_service = ProjectService(_project_repo, _user_repo)
@@ -294,16 +297,21 @@ def register_user(request: UserCreateRequest):
     tags=["Users"],
     summary="Get all users",
 )
-def get_all_users(role: Optional[str] = Query(None, description="Filter by role")):
+def get_all_users(
+    role: Optional[str] = Query(None, description="Filter by role"),
+    skip: int = Query(0, ge=0, description="Number of records to skip"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of records to return"),
+):
     """
     Return all users. Optionally filter by role using the `?role=` query parameter.
+    Use `skip` and `limit` for pagination.
     """
     try:
         if role:
             users = user_service.get_users_by_role(role)
         else:
             users = user_service.get_all_users()
-        return [_user_to_response(u) for u in users]
+        return [_user_to_response(u) for u in users][skip: skip + limit]
     except InvalidRoleError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
@@ -439,15 +447,18 @@ def create_project(request: ProjectCreateRequest):
 def get_all_projects(
     owner_id: Optional[str] = Query(None, description="Filter by owner user ID"),
     member_id: Optional[str] = Query(None, description="Filter by member user ID"),
+    skip: int = Query(0, ge=0, description="Number of records to skip"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of records to return"),
 ):
-    """Return all projects. Filter by owner or member using query parameters."""
+    """Return all projects. Filter by owner or member using query parameters.
+    Use `skip` and `limit` for pagination."""
     if owner_id:
         projects = project_service.get_projects_by_owner(owner_id)
     elif member_id:
         projects = project_service.get_projects_by_member(member_id)
     else:
         projects = project_service.get_all_projects()
-    return [_project_to_response(p) for p in projects]
+    return [_project_to_response(p) for p in projects][skip: skip + limit]
 
 
 @app.get(
@@ -584,8 +595,11 @@ def get_all_tasks(
     project_id: Optional[str] = Query(None, description="Filter by project ID"),
     assignee_id: Optional[str] = Query(None, description="Filter by assignee user ID"),
     overdue: Optional[bool] = Query(None, description="Return only overdue tasks"),
+    skip: int = Query(0, ge=0, description="Number of records to skip"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of records to return"),
 ):
-    """Return all tasks with optional filters."""
+    """Return all tasks with optional filters.
+    Use `skip` and `limit` for pagination."""
     if project_id:
         tasks = task_service.get_tasks_by_project(project_id)
     elif assignee_id:
@@ -594,7 +608,7 @@ def get_all_tasks(
         tasks = task_service.get_overdue_tasks()
     else:
         tasks = task_service.get_all_tasks()
-    return [_task_to_response(t) for t in tasks]
+    return [_task_to_response(t) for t in tasks][skip: skip + limit]
 
 
 @app.get(
@@ -711,6 +725,80 @@ def delete_task(task_id: str, requestor_id: str = Query(...)):
         raise HTTPException(status_code=403, detail=str(e))
     except TaskStateError as e:
         raise HTTPException(status_code=422, detail=str(e))
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# Documents  (US-004)
+# ════════════════════════════════════════════════════════════════════════════
+
+@app.post(
+    "/api/documents/upload",
+    tags=["Documents"],
+    summary="Upload a research document",
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        400: {"description": "Invalid file type or file too large"},
+        404: {"description": "Uploader user not found"},
+    },
+)
+def upload_document(
+    title: str = Form(..., description="Document title"),
+    uploader_id: str = Form(..., description="ID of the user uploading the document"),
+    file: UploadFile = File(..., description="PDF or DOCX file (max 50 MB)"),
+):
+    """
+    Upload a research document (PDF or DOCX, max 50 MB).
+
+    Validates file type and size before storing. Closes issue #4.
+    """
+    # Resolve uploader
+    try:
+        uploader = user_service.get_user(uploader_id)
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+    # Determine extension from filename
+    filename = file.filename or ""
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+    if ext not in ALLOWED_FILE_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file type '.{ext}'. Allowed: {sorted(ALLOWED_FILE_TYPES)}",
+        )
+
+    # Read content to determine actual size
+    content = file.file.read()
+    size_mb = len(content) / (1024 * 1024)
+    if size_mb > MAX_FILE_SIZE_MB:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File size {size_mb:.2f} MB exceeds the {MAX_FILE_SIZE_MB} MB limit.",
+        )
+
+    # Build and upload domain object
+    doc_id = str(uuid.uuid4())
+    doc = Document(document_id=doc_id, title=title, uploaded_by=uploader)
+    doc.upload(
+        file_path=f"uploads/{doc_id}/{filename}",
+        file_type=ext,
+        file_size_mb=round(size_mb, 4),
+        version_id=str(uuid.uuid4()),
+    )
+
+    if doc.status == DocumentStatus.REJECTED:
+        raise HTTPException(status_code=400, detail="Document validation failed.")
+
+    _document_repo.save(doc)
+
+    return {
+        "document_id": doc_id,
+        "title": title,
+        "file_name": filename,
+        "file_type": ext,
+        "file_size_mb": round(size_mb, 4),
+        "status": doc.status.value,
+        "uploader_id": uploader_id,
+    }
 
 
 # ── Health check ──────────────────────────────────────────────────────────────
